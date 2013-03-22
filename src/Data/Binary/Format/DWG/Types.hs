@@ -1,8 +1,10 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 module Types where
 import Data.Binary
+import Data.Binary.Get
 import Data.Bits
 import Data.Text (Text)
+import Control.Applicative
 
 type DWG_B   = Word8 -- bit
 type DWG_BB  = Word8 -- 2 bit
@@ -15,9 +17,9 @@ type DWG_2BD = (DWG_BD, DWG_BD) -- 2d point
 type DWG_3BD = (DWG_BD, DWG_BD, DWG_BD) -- 3d point
 type DWG_RB  = Word8 -- raw byte
 type DWG_RC  = Char -- raw char
-type DWG_RS  = Word16 -- raw short
+newtype DWG_RS  = DWG_RS Word16 deriving (Show) -- raw short
 type DWG_RD  = Double -- raw double
-type DWG_RL  = Word32 -- raw long
+newtype DWG_RL  = DWG_RL Word32 deriving (Show) -- raw long
 type DWG_2RD = (Double, Double) -- 2 raw doubles
 type DWG_3RD = (Double, Double, Double) -- 3 raw doubles
 type DWG_MC  = Char -- modular char 
@@ -37,3 +39,11 @@ type DWG_SN  = Int -- 16 byte sentinel
 --newtype DWG_CMC = CmColor value
 --newtype DWG_TC = true color, same as CMC
 --newtype DWG_OT = Object
+
+instance Binary DWG_RS where
+    put = undefined
+    get = DWG_RS <$> getWord16le
+
+instance Binary DWG_RL where
+    put = undefined
+    get = DWG_RL <$> getWord32le

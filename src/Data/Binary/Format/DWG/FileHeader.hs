@@ -1,8 +1,9 @@
 {-# LANGUAGE OverloadedStrings #-}
+module FileHeader where
 import Control.Monad (when)
 import Data.Binary
 import Data.Binary.Get
-import Data.ByteString (ByteString, pack)
+import Data.ByteString.Char8 (ByteString, pack)
 import Data.Word
 import Types
 
@@ -35,7 +36,7 @@ instance Binary Version where
 instance Binary Record where
    put = undefined
    get = do
-      recnum <- get :: Get DWG_RB
+      recnum <- getWord8 :: Get DWG_RB
       seeker <- get :: Get DWG_RL
       size   <- get :: Get DWG_RL
       return (Record recnum seeker size)
@@ -51,12 +52,12 @@ instance Binary FileHeader where
       skip 7 -- meaning unknown
       s <- getWord32le :: Get Seeker
       skip 2 -- object free space & template
-      cp <- getWord16le :: Get DWG_RS
-      n  <- getWord32le :: Get DWG_RL
+      cp <- get :: Get DWG_RS
+      nr@(DWG_RL n)  <- get :: Get DWG_RL
       rs <- mapM (const (get :: Get Record)) [1..n]
-      crc <- getWord16le :: Get DWG_RS
+      crc <- get :: Get DWG_RS
       sent <- mapM (const (get :: Get Word8)) [1..16]
       if sent == sentinel
          then return ()
          else fail "wrong sentinel"
-      return (FileHeader v s cp n rs crc) 
+      return (FileHeader v s cp nr rs crc) 

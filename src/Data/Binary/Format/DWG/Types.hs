@@ -1,8 +1,7 @@
-{-# LANGUAGE TypeSynonymInstances #-}
 module Types where
 import Data.Binary
 import Data.Binary.Get
-import Data.Bits
+import qualified Data.Binary.Bits.Get as Bits
 import Data.Text (Text)
 import Control.Applicative
 
@@ -12,7 +11,7 @@ type DWG_3B  = Word8 -- (1-3 bits)
 type DWG_BS  = Word16 -- (16 bits)
 type DWG_BL  = Word32 -- (32 bits)
 type DWG_BLL = Word64 -- (64 bits)
-type DWG_BD  = Double -- bitdouble
+newtype DWG_BD  = DWG_BD Double -- bitdouble
 type DWG_2BD = (DWG_BD, DWG_BD) -- 2d point
 type DWG_3BD = (DWG_BD, DWG_BD, DWG_BD) -- 3d point
 type DWG_RB  = Word8 -- raw byte
@@ -47,3 +46,14 @@ instance Binary DWG_RS where
 instance Binary DWG_RL where
     put = undefined
     get = DWG_RL <$> getWord32le
+
+instance Binary DWG_BD where
+    put = undefined
+    get = do
+        i <- Bits.runBitGet $ Bits.getWord8 2
+        d <- case i of
+                0 -> get :: Get DWG_RD
+                1 -> return 1.0
+                2 -> return 0.0
+                _ -> fail "bad DWG_BD"
+        return (DWG_BD d)

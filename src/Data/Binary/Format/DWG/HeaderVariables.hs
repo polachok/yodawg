@@ -2,7 +2,10 @@ module HeaderVariables where
 import Data.Binary
 import Types
 
-data Variables = Variables deriving (Show)
+data Variables = Variables {
+                  v_size :: DWG_RL
+                 }
+ deriving (Show)
 
 instance Binary Variables where
    put = undefined
@@ -15,4 +18,5 @@ instance Binary Variables where
       if sent == begginningSentinel
          then return ()
          else fail "wrong sentinel"
-      return Variables
+      size <- get :: Get DWG_RL
+      return (Variables size)

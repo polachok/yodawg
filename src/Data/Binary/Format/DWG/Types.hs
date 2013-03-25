@@ -1,6 +1,7 @@
 module Types where
 import Data.Binary
 import Data.Binary.Get
+import Data.Binary.IEEE754
 import qualified Data.Binary.Bits.Get as Bits
 import Data.Text (Text)
 import Control.Applicative
@@ -11,7 +12,7 @@ type DWG_3B  = Word8 -- (1-3 bits)
 type DWG_BS  = Word16 -- (16 bits)
 type DWG_BL  = Word32 -- (32 bits)
 type DWG_BLL = Word64 -- (64 bits)
-newtype DWG_BD  = DWG_BD Double -- bitdouble
+newtype DWG_BD  = DWG_BD Double deriving (Show) -- bitdouble
 type DWG_2BD = (DWG_BD, DWG_BD) -- 2d point
 type DWG_3BD = (DWG_BD, DWG_BD, DWG_BD) -- 3d point
 type DWG_RB  = Word8 -- raw byte
@@ -23,11 +24,11 @@ type DWG_2RD = (Double, Double) -- 2 raw doubles
 type DWG_3RD = (Double, Double, Double) -- 3 raw doubles
 type DWG_MC  = Char -- modular char 
 type DWG_MS  = Int -- modular short
---newtype DWG_H   =  -- handle reference
-type DWG_T   = Text -- bitshort length, followed by a string
+newtype DWG_H  = DWG_H Word8 deriving (Show) -- handle reference
+newtype DWG_T  = DWG_T Text deriving (Show) -- bitshort length, followed by a string
 type DWG_TU  = Text -- bitshort character length, followed
                     -- by Unicode string, 2 bytes per character
---newtype DWG_TV = DWG_T for 2004 and earlier else TU
+type DWG_TV = DWG_T -- for 2004 and earlier else TU
 --newtype DWG_X   = -- special form
 --newtype DWG_U   = -- unknown
 type DWG_SN  = Int -- 16 byte sentinel
@@ -50,10 +51,19 @@ instance Binary DWG_RL where
 instance Binary DWG_BD where
     put = undefined
     get = do
-        i <- Bits.runBitGet $ Bits.getWord8 2
-        d <- case i of
-                0 -> get :: Get DWG_RD
-                1 -> return 1.0
-                2 -> return 0.0
-                _ -> fail "bad DWG_BD"
+        d <- Bits.runBitGet $ do 
+            i <- Bits.getWord8 2
+            case i of
+                    0 -> runGet getFloat64le <$> Bits.getLazyByteString 8
+                    1 -> return 1.0
+                    2 -> return 0.0
+                    _ -> fail "bad DWG_BD"
         return (DWG_BD d)
+
+instance Binary DWG_T where
+    put = undefined
+    get = undefined
+
+instance Binary DWG_H where
+    put = undefined
+    get = return $ DWG_H 0 -- for testing only

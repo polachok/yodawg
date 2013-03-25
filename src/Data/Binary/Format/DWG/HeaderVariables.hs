@@ -1,11 +1,37 @@
+{-# LANGUAGE GADTs, ExistentialQuantification #-}
 module HeaderVariables where
+import Control.Applicative
 import Data.Binary
+import Data.Binary.Get
+import Data.ByteString.Lazy.Char8
+import qualified Data.Binary.Bits.Get as Bits
+import Data.Text (Text)
+import Control.Monad
+import Control.Monad.Trans
+import qualified Control.Monad.Trans.State as State
 import Types
 
+data Variable = UNKNOWN_BD !DWG_BD | UNKNOWN_TV !DWG_TV
+              | UNKNOWN_BL !DWG_BL | VIEWPORT !DWG_H
+              | DIMASO !DWG_B | DIMSHO !DWG_B | DIMSAV !DWG_B
+              | PLINEGEN !DWG_B | ORTHOMODE !DWG_B
+              | REGENMODE !DWG_B | FILLMODE !DWG_B
+              | QTEXTMODE !DWG_B | PSLTSCALE !DWG_B
+              | LIMCHECK !DWG_B
+      deriving (Show)
+
+data Ctor a = forall a. Binary a => Ctor (a -> Variable)
+
+varsR15 = [Ctor UNKNOWN_BD, Ctor UNKNOWN_BD, Ctor UNKNOWN_BD, Ctor UNKNOWN_BD] --,
+      {--     Ctor UNKNOWN_TV, Ctor UNKNOWN_TV, Ctor UNKNOWN_TV, Ctor UNKNOWN_TV,
+           Ctor UNKNOWN_BL, Ctor UNKNOWN_BL, Ctor VIEWPORT, Ctor DIMASO,
+           Ctor DIMSHO, Ctor PLINEGEN, Ctor ORTHOMODE, Ctor REGENMODE,
+           Ctor FILLMODE, Ctor QTEXTMODE, Ctor PSLTSCALE, Ctor LIMCHECK] -- more to come
+--}
 data Variables = Variables {
-                  v_size :: DWG_RL
-                 }
- deriving (Show)
+                  v_size :: !DWG_RL
+                , v_vars :: ![Variable]
+                 } deriving (Show)
 
 instance Binary Variables where
    put = undefined
@@ -19,4 +45,14 @@ instance Binary Variables where
          then return ()
          else fail "wrong sentinel"
       size <- get :: Get DWG_RL
-      return (Variables size)
+      vs <- Bits.runBitGet $ do
+         let go :: Ctor a -> State.StateT ByteString Bits.BitGet Variable
+             go (Ctor f) = do
+             bs <- State.get
+             case runGetOrFail get bs of
+                  Left (_, _, e) -> fail e
+                  Right (bs', _, a) -> State.put bs' >> return (f a)
+         let (DWG_RL s) = size
+         bs <- Bits.getLazyByteString (fromIntegral s)
+         flip State.evalStateT bs $ mapM go varsR15
+      return (Variables size vs)

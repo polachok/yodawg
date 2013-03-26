@@ -59,5 +59,5 @@ instance Binary FileHeader where
       sent <- mapM (const (get :: Get Word8)) [1..16]
       if sent == sentinel
          then return ()
-         else fail "wrong sentinel"
+         else fail "wrong sentinel in FileHeader"
       return (FileHeader v s cp nr rs crc) 

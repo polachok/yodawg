@@ -18,8 +18,8 @@ import qualified Data.ByteString.Char8 as BS
 -- R15 is 2000, R18 is 2004, R21 is 2007, R24 is 2010
 data Version = Common | R13 | R14 | R15 | R18 | R21 | R24 deriving (Show,Eq,Enum)
 type ConstructorName = String
-type BasicType = String
-type Constructor = (ConstructorName, [BasicType])
+type Field = String
+type Constructor = (ConstructorName, [Field])
 
 parseHeader :: Parser [Version]
 parseHeader = ((string "R2007 Only" *> return [R21]) <|>
@@ -36,7 +36,7 @@ parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "R2010+ Only" *> return [R24 ..]) <|>
                (string "R14+" *> return [R14 ..])) <* many (notChar '\n') <* endOfLine
 
-parseType :: Parser BasicType
+parseType :: Parser Field
 parseType = BS.unpack <$> (string "BS" <|> string "BD" <|> string "BLF" <|>
                            string "BL" <|> string "TV" <|> string "CMC" <|>
                            string "3BD" <|> string "2RD" <|>
@@ -49,12 +49,12 @@ parseName = (\n e -> concat $ [n]++(if null e then e else ["_"]++e)) <$> many (l
                   parseCaps = intercalate "_" <$> some (skipWhile (== ' ') *> some (satisfy (inClass "A-Z")))
                   parseExt = parsePar <|> parseCaps
 
-parseLine :: Parser (ConstructorName, BasicType)
+parseLine :: Parser (ConstructorName, Field)
 parseLine = (\t n -> (map toUpper n, t)) <$>
             (some space *> parseType <* parseSep) <*> (parseName <* many (notChar '\n') <* endOfLine)
             where parseSep = skipSpace *> char ':' <* skipSpace
 
-parseFlags :: Parser (ConstructorName, BasicType)
+parseFlags :: Parser (ConstructorName, Field)
 parseFlags = do 
              (name, typ) <- parseLine
              case typ of

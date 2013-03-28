@@ -9,8 +9,8 @@ import Language.Haskell.TH.Lib
 import System.Directory (getCurrentDirectory)
 import Control.Applicative
 import Control.Monad.Trans.State (evalState, get, put)
-import Data.List (groupBy, intercalate, find)
-import Data.Char (toUpper)
+import Data.List (groupBy, intercalate, intersperse, find)
+import Data.Char (toUpper,toLower)
 import Data.Attoparsec.ByteString.Char8
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
@@ -93,9 +93,17 @@ mkVariableAdt name version = do
     let parseVersion s = let (Just v) = find ((==) s . show) [R13 ..] in v
         mkCtor (name, fields) =
             normalC (mkName name) (map (\x -> strictType isStrict (conT (mkName ("DWG_"++x)))) fields)
+        mkParser (name, fields) = foldr (\s b -> case s of 
+                             "*" -> [|(<*>) $(b)|]
+                             _   -> [|$(b) $(varE $ mkName "get")|]) [|fmap $(conE $ mkName name)|] $ intersperse "*" fields
+        parserName = mkName $ "parse" ++ name ++ "s" ++ version
+
     curdir <- runIO $ getCurrentDirectory
     addDependentFile $ curdir ++ "/spec.txt"
     bs <- runIO $ BS.readFile "spec.txt"
     let spec = concat <$> map snd <$> filter (\(v, _) ->
                elem (parseVersion version) v || elem Common v) $ parseSpec bs
-    fmap (:[]) $ dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
+    [ValD _ body dec] <- [d|parse = $(listE $ map mkParser spec)|]
+    let parser = ValD (VarP parserName) body dec
+    decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
+    return [decl, parser]

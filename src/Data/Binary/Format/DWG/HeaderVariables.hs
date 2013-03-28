@@ -20,6 +20,7 @@ mkVariableAdt "Variable" "R15"
 data Variables = Variables {
                   v_size :: !DWG_RL
                 , v_vars :: [Variable]
+                , v_crc  :: !DWG_RS
                  } deriving (Show)
 
 instance Binary Variables where
@@ -29,10 +30,21 @@ instance Binary Variables where
                                 0xfd, 0xde, 0x38, 0xa9,
                                 0x5f, 0x7c, 0x68, 0xb8,
                                 0x4e, 0x6d, 0x33, 0x5f]
+
+          endingSentinel = [0x30, 0x84, 0xE0, 0xDC,
+                            0x02, 0x21, 0xC7, 0x56,
+                            0xA0, 0x83, 0x97, 0x47,
+                            0xB1,0x92,0xCC,0xA0]
+
       sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
       if sent == begginningSentinel
          then return ()
          else fail "wrong sentinel"
       size <- Binary.get :: Get DWG_RL
       xs <- Bits.runBitGet $! sequence parseVariablesR15
-      return (Variables size xs)
+      crc <- Binary.get :: Get DWG_RS
+      sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
+      if sent == endingSentinel
+         then return ()
+         else fail "wrong sentinel"
+      return (Variables size xs crc)

@@ -356,10 +356,8 @@ R2000+:
                 PSTYLEMODE Flags & 0x2000 
                 OLESTARTUP Flags & 0x4000 
         BS : INSUNITS 
-        BS : CEPSNTYPE 
-        H : CPSNID (present only if CEPSNTYPE == 3) (hard pointer) 
+        BSH : CEPSNTYPE -- H : CPSNID (present only if CEPSNTYPE == 3) (hard pointer) [edited]
         TV : FINGERPRINTGUID 
-        TV : VERSIONGUID 
         TV : VERSIONGUID 
 R2004+: 
         RC : SORTENTS 

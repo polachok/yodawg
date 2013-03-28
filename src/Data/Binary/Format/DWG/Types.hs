@@ -30,6 +30,7 @@ type DWG_2RD = (DWG_RD, DWG_RD) -- 2 raw doubles
 type DWG_3RD = (Double, Double, Double) -- 3 raw doubles
 type DWG_MC  = Char -- modular char 
 type DWG_MS  = Int -- modular short
+data DWG_BSH = DWG_BSH DWG_BS (Maybe DWG_H) deriving (Show) -- CEPSNTYPE 
 data DWG_H  = DWG_H !Word8 !Word16 deriving (Show) -- handle reference
 data DWG_WH  = DWG_WH !Word8 !Word16 deriving (Show) -- wide handle reference (HANDSEED)
 newtype DWG_T  = DWG_T ByteString deriving (Show) -- bitshort length, followed by a string
@@ -92,6 +93,13 @@ getBitShort = do
                      3 -> return 256
         return $! DWG_BS d
 
+getBitShortMaybeHandle :: Bits.BitGet DWG_BSH
+getBitShortMaybeHandle = do
+        bs <- getBitShort
+        case bs of
+            3 -> DWG_BSH bs . Just <$> getHandle
+            _ -> return $ DWG_BSH bs Nothing
+
 getBitDouble :: Bits.BitGet DWG_BD
 getBitDouble = do
         i <- Bits.getWord8 2
@@ -125,7 +133,7 @@ getWideHandle = do
     case counter of
             0 -> return $ DWG_WH code 0
             1 -> Bits.getWord8 8 >>= \h -> return $ DWG_WH code (fromIntegral h)
-            2 -> DWG_WH <$> (return code) <*> (runGet getWord16le <$> getLazyByteString' (fromIntegral counter))
+            2 -> DWG_WH code <$> runGet getWord16le <$> getLazyByteString' (fromIntegral counter)
             _ -> error $ "Wide handle of length " ++ show counter
 
 

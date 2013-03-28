@@ -37,9 +37,9 @@ parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "R14+" *> return [R14 ..])) <* many (notChar '\n') <* endOfLine
 
 parseType :: Parser Field
-parseType = BS.unpack <$> (string "BS" <|> string "BD" <|> string "BLF" <|>
-                           string "BL" <|> string "TV" <|> string "CMC" <|>
-                           string "3BD" <|> string "2RD" <|>
+parseType = BS.unpack <$> (string "BSH" <|> string "BS" <|> string "BD" <|>
+                           string "BLF" <|> string "BL" <|> string "TV" <|>
+                           string "CMC" <|> string "3BD" <|> string "2RD" <|>
                            string "RL" <|> string "RC" <|> string "WH" <|>
                            string "B" <|> string "H" <|> string "T")
 

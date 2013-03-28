@@ -295,7 +295,6 @@ R2000+ Only:
         BS : DIMALTTZ 
         B : DIMUPT 
         BS : DIMATFIT 
-        BS : DIMATFIT 
 R2007+ Only: 
         B : DIMFXLON 
 R2010+ Only: 

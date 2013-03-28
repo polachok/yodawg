@@ -43,4 +43,4 @@ instance Bitcoded DWG_RC where
     get = getWord8 8
 
 instance Bitcoded DWG_CMC where
-    get = DWG_CMC <$> get <*> get <*> get
+    get = DWG_CMC <$> get

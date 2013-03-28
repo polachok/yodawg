@@ -42,7 +42,8 @@ type DWG_SN  = Int -- 16 byte sentinel
 --newtype DWG_DD  = -- bit double with default
 --newtype DWG_BT  = -- bit thickness
 --newtype DWG_3DD = (DWG_DD, DWG_DD, DWG_DD)
-data DWG_CMC = DWG_CMC DWG_BS DWG_BL DWG_RC deriving (Show)
+--data DWG_CMC = DWG_CMC DWG_BS DWG_BL DWG_RC deriving (Show)
+newtype DWG_CMC = DWG_CMC DWG_BS deriving (Show)
 --newtype DWG_TC = true color, same as CMC
 --newtype DWG_OT = Object
 

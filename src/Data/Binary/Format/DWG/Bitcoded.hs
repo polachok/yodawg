@@ -44,3 +44,6 @@ instance Bitcoded DWG_RC where
 
 instance Bitcoded DWG_CMC where
     get = DWG_CMC <$> get
+
+instance Bitcoded DWG_WH where
+    get = getWideHandle

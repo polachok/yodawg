@@ -135,7 +135,7 @@ Common:
         BL : TDUSRTIMER (Days) 
         BL : TDUSRTIMER (Milliseconds into the day) 
         CMC : CECOLOR 
-        H : HANDSEED  The next handle, with an 8-bit length specifier preceding the handle bytes (standard hex handle form) (code 0). 
+        WH : HANDSEED  The next handle, with an 8-bit length specifier preceding the handle bytes (standard hex handle form) (code 0). [This one was edited to specify different type]
         H : CLAYER (hard pointer) 
         H : TEXTSTYLE (hard pointer) 
         H : CELTYPE (hard pointer) 

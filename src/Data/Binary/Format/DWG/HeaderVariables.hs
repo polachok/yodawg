@@ -34,5 +34,5 @@ instance Binary Variables where
          then return ()
          else fail "wrong sentinel"
       size <- Binary.get :: Get DWG_RL
-      xs <- Bits.runBitGet $! sequence (take 80 parseVariablesR15)
+      xs <- Bits.runBitGet $! sequence (take 207 parseVariablesR15)
       return (Variables size xs)

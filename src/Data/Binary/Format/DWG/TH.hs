@@ -59,7 +59,7 @@ parseFlags = do
              (name, typ) <- parseLine
              case typ of
                 -- basically just skip over flags
-                "BL" -> some (do skipSpace
+                "BL" -> some (do some space
                                  parseName
                                  skipSpace
                                  notChar ':'

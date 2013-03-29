@@ -25,7 +25,8 @@ type DWG_RB  = Word8 -- raw byte
 type DWG_RC  = Word8 -- raw char
 newtype DWG_RS  = DWG_RS Word16 deriving (Show) -- raw short
 newtype DWG_RD  = DWG_RD Double deriving (Show) -- raw double
-newtype DWG_RL  = DWG_RL Word32 deriving (Show) -- raw long
+newtype DWG_RL  = DWG_RL Word32
+        deriving (Show,Eq,Enum,Real,Num,Ord,Integral) -- raw long
 type DWG_2RD = (DWG_RD, DWG_RD) -- 2 raw doubles
 type DWG_3RD = (Double, Double, Double) -- 3 raw doubles
 type DWG_MC  = Char -- modular char 
@@ -48,6 +49,9 @@ type DWG_SN  = Int -- 16 byte sentinel
 newtype DWG_CMC = DWG_CMC DWG_BS deriving (Show)
 --newtype DWG_TC = true color, same as CMC
 --newtype DWG_OT = Object
+
+data Class = Class !DWG_BS !DWG_BS !DWG_TV !DWG_TV !DWG_TV !DWG_B !DWG_BS
+                deriving (Show)
 
 instance Binary DWG_RS where
     put = undefined

@@ -50,3 +50,6 @@ instance Bitcoded DWG_WH where
 
 instance Bitcoded DWG_BSH where
     get = getBitShortMaybeHandle
+
+instance Bitcoded Class where
+    get = Class <$> get <*> get <*> get <*> get <*> get <*> get <*> get

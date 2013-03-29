@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module TH (mkVariableAdt) where
+module Data.Binary.Format.DWG.TH (mkVariableAdt) where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote

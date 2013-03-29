@@ -1,5 +1,5 @@
 {-# LANGUAGE OverloadedStrings, GeneralizedNewtypeDeriving #-}
-module Types where
+module Data.Binary.Format.DWG.Types where
 import Data.Binary
 import Data.Binary.Get
 import Data.Binary.IEEE754

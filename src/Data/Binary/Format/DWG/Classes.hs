@@ -1,4 +1,4 @@
-module Classes where
+module Data.Binary.Format.DWG.Classes where
 import Control.Applicative
 import Control.Monad
 import Data.Binary hiding (get)
@@ -9,8 +9,8 @@ import qualified Data.ByteString.Lazy.Char8 as Lazy
 import Data.Monoid ((<>))
 import Prelude hiding (catch)
 
-import Types
-import Bitcoded
+import Data.Binary.Format.DWG.Types
+import Data.Binary.Format.DWG.Bitcoded
 import Debug.Trace
 
 data Classes = Classes {

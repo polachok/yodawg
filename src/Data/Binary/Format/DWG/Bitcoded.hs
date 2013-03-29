@@ -1,5 +1,5 @@
 {-# LANGUAGE TypeSynonymInstances, FlexibleInstances #-}
-module Bitcoded where
+module Data.Binary.Format.DWG.Bitcoded where
 import Control.Applicative
 
 import Data.Binary.Bits
@@ -7,7 +7,7 @@ import Data.Binary.Bits.Get
 import qualified Data.Binary.Get as Binary
 import Data.Binary.IEEE754
 
-import Types
+import Data.Binary.Format.DWG.Types
 
 class Bitcoded a where
     get :: BitGet a

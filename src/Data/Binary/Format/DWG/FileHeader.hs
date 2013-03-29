@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
-module FileHeader where
+module Data.Binary.Format.DWG.FileHeader where
 import Control.Monad (when)
 import Data.Binary
 import Data.Binary.Get
 import Data.ByteString.Char8 (ByteString, pack)
 import Data.Word
-import Types
+import Data.Binary.Format.DWG.Types
 
 data Version = R13 | R14 | R15 deriving (Show)
 type Seeker = Word32

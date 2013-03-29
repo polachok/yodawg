@@ -1,5 +1,5 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module HeaderVariables where
+module Data.Binary.Format.DWG.HeaderVariables where
 import Control.Applicative
 import Data.Binary hiding (get)
 import qualified Data.Binary as Binary
@@ -9,9 +9,9 @@ import qualified Data.Map as Map
 import Control.Monad
 import Control.Monad.Trans
 import qualified Control.Monad.Trans.State as State
-import Types
-import TH
-import Bitcoded as Bits
+import Data.Binary.Format.DWG.Types
+import Data.Binary.Format.DWG.TH
+import Data.Binary.Format.DWG.Bitcoded as Bits
 
 import Debug.Trace
 

@@ -21,6 +21,8 @@ type ConstructorName = String
 type Field = String
 type Constructor = (ConstructorName, [Field])
 
+specPath = "/src/Data/Binary/Format/DWG/spec.txt"
+
 parseHeader :: Parser [Version]
 parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "Common" *> return [Common]) <|>
@@ -99,8 +101,8 @@ mkVariableAdt name version = do
         parserName = mkName $ "parse" ++ name ++ "s" ++ version
 
     curdir <- runIO $ getCurrentDirectory
-    addDependentFile $ curdir ++ "/spec.txt"
-    bs <- runIO $ BS.readFile "spec.txt"
+    addDependentFile $ curdir ++ specPath
+    bs <- runIO $ BS.readFile (curdir ++ specPath)
     let spec = concat <$> map snd <$> filter (\(v, _) ->
                elem (parseVersion version) v || elem Common v) $ parseSpec bs
     [ValD _ body dec] <- [d|parse = $(listE $ map mkParser spec)|]

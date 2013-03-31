@@ -33,9 +33,8 @@ instance Binary Classes where
 
         let manyClasses xs = do b <- Bits.isEmpty
                                 if b
-                                then return xs
-                                else (get :: Bits.BitGet Class) >>=
-                                         \x -> manyClasses (x:xs)
+                                     then return xs
+                                     else (get :: Bits.BitGet Class) >>= \x -> manyClasses (x:xs)
         sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
         if sent == sentinel
            then return ()

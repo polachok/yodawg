@@ -31,17 +31,13 @@ instance Binary Classes where
                          0x3F,0x23,0x0B,0xA0,
                          0x18,0x30,0x49,0x75] 
 
-        let manyClasses xs = do b <- Bits.isEmpty
-                                if b
-                                     then return xs
-                                     else (get :: Bits.BitGet Class) >>= \x -> manyClasses (x:xs)
         sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
         if sent == sentinel
            then return ()
            else fail "wrong sentinel"
         len <- Binary.get :: Binary.Get DWG_RL
         str <- Binary.getLazyByteString (fromIntegral len)
-        let xs = Binary.runGet (Bits.runBitGet $ manyClasses []) str
+        let xs = Binary.runGet (Bits.runBitGet $ some (get :: Bits.BitGet Class)) str
         crc <- Binary.get :: Binary.Get DWG_RS
         sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
         if sent == eSentinel

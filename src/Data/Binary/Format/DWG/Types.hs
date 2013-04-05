@@ -29,7 +29,8 @@ newtype DWG_RL  = DWG_RL Word32
         deriving (Show,Eq,Enum,Real,Num,Ord,Integral) -- raw long
 type DWG_2RD = (DWG_RD, DWG_RD) -- 2 raw doubles
 type DWG_3RD = (Double, Double, Double) -- 3 raw doubles
-type DWG_MC  = Char -- modular char 
+newtype DWG_MC  = DWG_MC Int -- modular char 
+        deriving (Show,Eq,Enum,Real,Num,Ord,Integral)
 type DWG_MS  = Int -- modular short
 data DWG_BSH = DWG_BSH DWG_BS (Maybe DWG_H) deriving (Show) -- CEPSNTYPE 
 data DWG_H  = DWG_H !Word8 !Word16 deriving (Show) -- handle reference

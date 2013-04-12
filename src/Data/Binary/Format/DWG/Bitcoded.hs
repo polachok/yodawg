@@ -59,23 +59,49 @@ instance Bitcoded DWG_BSH where
 instance Bitcoded Class where
     get = Class <$> get <*> get <*> get <*> get <*> get <*> get <*> get
 
+{--
 shiftRight :: [Word8] -> Int
 shiftRight xs =
     let
+      bitsize = bitSize (xs !! 0) - 1 -- first bit dropped
       x = Binary.runGet (Binary.getWord32be) $ Binary.runPut (runBitPut $ do
-        replicateM_ (32 - 7 * length xs) $ putBool False
-        mapM_ (putWord8 7) $ reverse xs)
-      signBit = 7 * length xs - 1
+            replicateM_ (32 - bitsize * length xs) $ putBool False
+            mapM_ (putWord8 bitsize) $ reverse xs)
+      signBit = bitsize * length xs - 1
     in
       if testBit x signBit
       then 0 - (fromIntegral (clearBit x signBit))
       else fromIntegral x
+--}
+
+shiftRight16 :: (Either [Word8] [Word16]) -> Int
+shiftRight16 = \e -> case e of
+           Right ws -> t (g (bitsize ws) ws) (signBit ws)
+           Left ws -> t (g (bitsize ws) ws) (signBit ws)
+    where
+      bitsize ws = bitSize (head ws) - 1 -- first bit dropped
+      signBit ws = (bitsize ws) * (length ws) - 1
+      g bs xs = Binary.runGet (Binary.getWord32be) $ Binary.runPut (runBitPut $ do
+              replicateM_ (32 - bs * length xs) $ putBool False
+              mapM_ (putWord16be bs) $ reverse (map fromIntegral xs))
+      t x sb = if testBit x sb
+               then 0 - (fromIntegral (clearBit x sb))
+               else fromIntegral x
+
+untilM :: Monad m => (a -> Bool) -> m a -> m [a]
+untilM pred act =
+    let loop xs = do
+        x <- act
+        if pred x
+        then return (x:xs)
+        else loop (x:xs)
+    in
+        loop []
 
 instance Bitcoded DWG_MC where
-    get = do xs <- readUntilHighZero []
-             return $! DWG_MC $ fromIntegral $ shiftRight xs
-           where readUntilHighZero xs = do
-                    x <- fromIntegral <$> getWord8 8
-                    if not (testBit x 7)
-                    then return (x:xs)
-                    else readUntilHighZero (x:xs)
+    get = do xs <- untilM (flip testBit 7) (getWord8 8)
+             return $! DWG_MC $ fromIntegral $ shiftRight16 (Left xs)
+
+instance Bitcoded DWG_MS where
+    get = do xs <- untilM (flip testBit 15) (getWord16be 16)
+             return $! DWG_MS $ fromIntegral $ shiftRight16 (Right xs)

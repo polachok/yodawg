@@ -86,7 +86,7 @@ getHandle = do
         case counter of
             0 -> return $ DWG_H code 0
             1 -> Bits.getWord8 8 >>= \h -> return $ DWG_H code (fromIntegral h)
-            2 -> DWG_H <$> (return code) <*> (runGet getWord16le <$> getLazyByteString' (fromIntegral counter))
+            2 -> DWG_H code <$> (runGet getWord16le <$> getLazyByteString' (fromIntegral counter))
             _ -> error $ "Handle of length " ++ show counter
 
 getBitShort :: Bits.BitGet DWG_BS

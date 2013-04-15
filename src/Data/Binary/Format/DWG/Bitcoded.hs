@@ -13,6 +13,7 @@ import qualified Data.Binary.Get as Binary
 import Data.Binary.IEEE754
 
 import Data.Binary.Format.DWG.Types
+import Data.Binary.Format.DWG.Util
 
 class Bitcoded a where
     get :: BitGet a
@@ -88,20 +89,10 @@ shiftRight16 = \e -> case e of
                then 0 - (fromIntegral (clearBit x sb))
                else fromIntegral x
 
-untilM :: Monad m => (a -> Bool) -> m a -> m [a]
-untilM pred act =
-    let loop xs = do
-        x <- act
-        if pred x
-        then return (x:xs)
-        else loop (x:xs)
-    in
-        loop []
-
 instance Bitcoded DWG_MC where
-    get = do xs <- untilM (flip testBit 7) (getWord8 8)
+    get = do xs <- repeatUntil (flip testBit 7) (getWord8 8)
              return $! DWG_MC $ fromIntegral $ shiftRight16 (Left xs)
 
 instance Bitcoded DWG_MS where
-    get = do xs <- untilM (flip testBit 15) (getWord16be 16)
+    get = do xs <- repeatUntil (flip testBit 15) (getWord16be 16)
              return $! DWG_MS $ fromIntegral $ shiftRight16 (Right xs)

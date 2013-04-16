@@ -11,6 +11,7 @@ import Control.Monad.Trans
 import qualified Control.Monad.Trans.State as State
 import Data.Binary.Format.DWG.Types
 import Data.Binary.Format.DWG.TH
+import Data.Binary.Format.DWG.Util (ensureSentinel)
 import Data.Binary.Format.DWG.Bitcoded as Bits
 
 import Debug.Trace
@@ -26,7 +27,7 @@ data Variables = Variables {
 instance Binary Variables where
    put = undefined
    get = do
-      let begginningSentinel = [0xcf, 0x7b, 0x1f, 0x23,
+      let beginningSentinel = [0xcf, 0x7b, 0x1f, 0x23,
                                 0xfd, 0xde, 0x38, 0xa9,
                                 0x5f, 0x7c, 0x68, 0xb8,
                                 0x4e, 0x6d, 0x33, 0x5f]
@@ -36,15 +37,9 @@ instance Binary Variables where
                             0xA0, 0x83, 0x97, 0x47,
                             0xB1,0x92,0xCC,0xA0]
 
-      sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
-      if sent == begginningSentinel
-         then return ()
-         else fail "wrong sentinel"
+      ensureSentinel beginningSentinel "HeaderVariables, beginning"
       size <- Binary.get :: Get DWG_RL
       xs <- Bits.runBitGet $! sequence parseVariablesR15
       crc <- Binary.get :: Get DWG_RS
-      sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
-      if sent == endingSentinel
-         then return ()
-         else fail "wrong sentinel"
+      ensureSentinel endingSentinel "HeaderVariables, ending"
       return (Variables size xs crc)

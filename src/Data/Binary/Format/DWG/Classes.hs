@@ -11,6 +11,7 @@ import Prelude hiding (catch)
 
 import Data.Binary.Format.DWG.Types
 import Data.Binary.Format.DWG.Bitcoded
+import Data.Binary.Format.DWG.Util
 import Debug.Trace
 
 data Classes = Classes {
@@ -31,16 +32,10 @@ instance Binary Classes where
                          0x3F,0x23,0x0B,0xA0,
                          0x18,0x30,0x49,0x75] 
 
-        sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
-        if sent == sentinel
-           then return ()
-           else fail "wrong sentinel"
+        ensureSentinel sentinel "Classes, beginning"
         len <- Binary.get :: Binary.Get DWG_RL
         str <- Binary.getLazyByteString (fromIntegral len)
         let xs = Binary.runGet (Bits.runBitGet $ some (get :: Bits.BitGet Class)) str
         crc <- Binary.get :: Binary.Get DWG_RS
-        sent <- mapM (const (Binary.get :: Get Word8)) [1..16]
-        if sent == eSentinel
-           then return ()
-           else fail "wrong sentinel"
+        ensureSentinel eSentinel "Classes, ending"
         return $! Classes len xs crc

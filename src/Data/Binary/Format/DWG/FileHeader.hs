@@ -1,11 +1,12 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Data.Binary.Format.DWG.FileHeader where
-import Control.Monad (when)
+import Control.Monad (when, replicateM)
 import Data.Binary
 import Data.Binary.Get
 import Data.ByteString.Char8 (ByteString, pack)
 import Data.Word
 import Data.Binary.Format.DWG.Types
+import Data.Binary.Format.DWG.Util
 
 data Version = R13 | R14 | R15 deriving (Show)
 type Seeker = Word32
@@ -54,10 +55,7 @@ instance Binary FileHeader where
       skip 2 -- object free space & template
       cp <- get :: Get DWG_RS
       nr@(DWG_RL n)  <- get :: Get DWG_RL
-      rs <- mapM (const (get :: Get Record)) [1..n]
+      rs <- replicateM (fromIntegral n) get :: Get [Record]
       crc <- get :: Get DWG_RS
-      sent <- mapM (const (get :: Get Word8)) [1..16]
-      if sent == sentinel
-         then return ()
-         else fail "wrong sentinel in FileHeader"
+      ensureSentinel sentinel "FileHeader"
       return (FileHeader v s cp nr rs crc) 

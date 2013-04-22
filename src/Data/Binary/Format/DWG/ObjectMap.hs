@@ -39,4 +39,4 @@ instance Binary ObjectMap where
         let lastHandle = DWG_H 0 0
             lastLoc = 0
         ss <- concatMap snd <$> (Bits.runBitGet $ repeatUntil ((== 2) . fst) $ decodeSection)
-        return $ ObjectMap $ scanl (\(h,l) (ho, lo) -> (handlePlusOffset h ho, l + lo)) (lastHandle, lastLoc) ss
+        return $ ObjectMap $ tail $ scanl (\(h,l) (ho, lo) -> (handlePlusOffset h ho, l + lo)) (lastHandle, lastLoc) ss

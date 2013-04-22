@@ -31,7 +31,7 @@ decodeSection = do
                 lo <- Bits.get
                 return (ho, lo) 
         crc <- Bits.getWord16be 16
-        return (fromIntegral size, s)
+        return (size', s)
 
 instance Binary ObjectMap where
     put = undefined 

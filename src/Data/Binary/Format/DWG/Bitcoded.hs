@@ -96,3 +96,11 @@ instance Bitcoded DWG_MC where
 instance Bitcoded DWG_MS where
     get = do xs <- repeatUntil (flip testBit 15) (getWord16be 16)
              return $! DWG_MS $ fromIntegral $ shiftRight16 (Right xs)
+
+instance Bitcoded DWG_BT where
+    -- R15+
+    get = do
+            b <- getBool
+            if b
+            then return $ DWG_BT 0.0
+            else DWG_BT <$> (\(DWG_BD f) -> f) <$> getBitDouble

@@ -51,7 +51,7 @@ newtype DWG_BT  = DWG_BT Double deriving (Show) -- bit thickness
 --data DWG_CMC = DWG_CMC DWG_BS DWG_BL DWG_RC deriving (Show)
 newtype DWG_CMC = DWG_CMC DWG_BS deriving (Show)
 --newtype DWG_TC = true color, same as CMC
---newtype DWG_OT = Object
+type DWG_OT = DWG_BS --Object (until R2007)
 
 data Class = Class !DWG_BS !DWG_BS !DWG_TV !DWG_TV !DWG_TV !DWG_B !DWG_BS
                 deriving (Show)

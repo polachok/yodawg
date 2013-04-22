@@ -23,7 +23,8 @@ type DWG_2BD = (DWG_BD, DWG_BD) -- 2d point
 type DWG_3BD = (DWG_BD, DWG_BD, DWG_BD) -- 3d point
 type DWG_RB  = Word8 -- raw byte
 type DWG_RC  = Word8 -- raw char
-newtype DWG_RS  = DWG_RS Word16 deriving (Show) -- raw short
+newtype DWG_RS  = DWG_RS Word16
+        deriving (Show,Eq,Enum,Real,Num,Ord,Integral) -- raw short
 newtype DWG_RD  = DWG_RD Double deriving (Show) -- raw double
 newtype DWG_RL  = DWG_RL Word32
         deriving (Show,Eq,Enum,Real,Num,Ord,Integral) -- raw long

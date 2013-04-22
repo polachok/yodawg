@@ -87,15 +87,15 @@ getHandle = do
         case counter of
             0 -> return $ DWG_H code 0
             1 -> Bits.getWord8 8 >>= \h -> return $ DWG_H code (fromIntegral h)
-            2 -> DWG_H code <$> (runGet getWord16le <$> getLazyByteString' (fromIntegral counter))
+            2 -> DWG_H code <$> (runGet getWord16le <$> Bits.getLazyByteString (fromIntegral counter))
             _ -> error $ "Handle of length " ++ show counter
 
 getBitShort :: Bits.BitGet DWG_BS
 getBitShort = do
         i <- Bits.getWord8 2
         d <- case i of
-                     0 -> runGet getWord16le <$> getLazyByteString' 2
-                     1 -> fromIntegral <$> runGet getWord8 <$> getLazyByteString' 1
+                     0 -> runGet getWord16le <$> Bits.getLazyByteString 2
+                     1 -> fromIntegral <$> runGet getWord8 <$> Bits.getLazyByteString 1
                      2 -> return 0
                      3 -> return 256
         return $! DWG_BS d
@@ -111,7 +111,7 @@ getBitDouble :: Bits.BitGet DWG_BD
 getBitDouble = do
         i <- Bits.getWord8 2
         d <- case i of
-                    0 -> runGet getFloat64le <$> getLazyByteString' 8
+                    0 -> runGet getFloat64le <$> Bits.getLazyByteString 8
                     1 -> return 1.0
                     2 -> return 0.0
                     _ -> fail "bad DWG_BD"
@@ -121,8 +121,8 @@ getBitLong :: Bits.BitGet DWG_BL
 getBitLong = do
         i <- Bits.getWord8 2
         l <- case i of
-                0 -> runGet getWord32le <$> getLazyByteString' 4
-                1 -> fromIntegral <$> runGet getWord8 <$> getLazyByteString' 1
+                0 -> runGet getWord32le <$> Bits.getLazyByteString 4
+                1 -> fromIntegral <$> runGet getWord8 <$> Bits.getLazyByteString 1
                 2 -> return 0
                 4 -> fail "bad DWG_BL"
         return $! DWG_BL l
@@ -140,9 +140,5 @@ getWideHandle = do
     case counter of
             0 -> return $ DWG_WH code 0
             1 -> Bits.getWord8 8 >>= \h -> return $ DWG_WH code (fromIntegral h)
-            2 -> DWG_WH code <$> runGet getWord16le <$> getLazyByteString' (fromIntegral counter)
+            2 -> DWG_WH code <$> runGet getWord16le <$> Bits.getLazyByteString (fromIntegral counter)
             _ -> error $ "Wide handle of length " ++ show counter
-
-
-getLazyByteString' :: Int -> Bits.BitGet Lazy.ByteString
-getLazyByteString' n = Lazy.fromChunks . flip (:) [] <$> Bits.getByteString n

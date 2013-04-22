@@ -37,7 +37,7 @@ instance Bitcoded DWG_B where
     get = getBool
 
 instance Bitcoded DWG_RD where
-    get = DWG_RD <$> Binary.runGet getFloat64le <$> getLazyByteString' 8
+    get = DWG_RD <$> Binary.runGet getFloat64le <$> getLazyByteString 8
 
 instance Bitcoded DWG_2RD where
     get = (,) <$> get <*> get

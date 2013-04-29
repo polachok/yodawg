@@ -9,7 +9,7 @@ import Language.Haskell.TH.Lib
 import System.Directory (getCurrentDirectory)
 import Control.Applicative
 import Control.Monad.Trans.State (evalState, get, put)
-import Data.List (groupBy, intercalate, intersperse, find)
+import Data.List (groupBy, intercalate, intersperse, find, sort)
 import Data.Char (toUpper,toLower)
 import Data.Attoparsec.ByteString.Char8
 import Data.ByteString.Char8 (ByteString)
@@ -40,12 +40,12 @@ parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "R14+" *> return [R14 ..])) <* many (notChar '\n') <* endOfLine
 
 parseType :: Parser Field
-parseType = BS.unpack <$> (string "BSH" <|> string "BS" <|> string "BD" <|>
-                           string "BLF" <|> string "BL" <|> string "TV" <|>
-                           string "CMC" <|> string "3BD" <|> string "2RD" <|>
-                           string "RL" <|> string "RC" <|> string "WH" <|>
-                           string "B" <|> string "B*" <|> string "H" <|>
-                           string "T" <|> string "MS" <|> string "MC")
+parseType = let types = map string $ reverse.sort $
+                         [ "BSH", "BS", "BD", "BLF", "BL", "TV", "CMC", "3BD",
+                           "2RD", "RL", "RC", "WH", "B*", "B", "H",
+                           "T", "MS", "MC" ]
+            in
+                BS.unpack <$> foldl1 (<|>) types
 
 parseName :: Parser ConstructorName
 parseName = (\n e -> concat $ [n]++(if null e then e else ["_"]++e)) <$> many (letter_ascii <|> digit) <*> many parseExt

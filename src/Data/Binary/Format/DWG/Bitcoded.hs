@@ -99,8 +99,7 @@ instance Bitcoded DWG_MS where
 
 instance Bitcoded DWG_BT where
     -- R15+
-    get = do
-            b <- getBool
-            if b
-            then return $ DWG_BT 0.0
-            else DWG_BT <$> (\(DWG_BD f) -> f) <$> getBitDouble
+    get = getBool >>= \b ->
+             if b
+             then return $ DWG_BT 0.0
+             else DWG_BT <$> (\(DWG_BD f) -> f) <$> getBitDouble

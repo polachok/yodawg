@@ -36,6 +36,7 @@ parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "R2000+ Only" *> return [R15 ..]) <|>
                (string "R2000+" *> return [R15 ..]) <|>
                (string "R2010+ Only" *> return [R24 ..]) <|>
+               (string "R2010+" *> return [R24 ..]) <|>
                (string "R14+" *> return [R14 ..])) <* many (notChar '\n') <* endOfLine
 
 parseType :: Parser Field
@@ -43,7 +44,8 @@ parseType = BS.unpack <$> (string "BSH" <|> string "BS" <|> string "BD" <|>
                            string "BLF" <|> string "BL" <|> string "TV" <|>
                            string "CMC" <|> string "3BD" <|> string "2RD" <|>
                            string "RL" <|> string "RC" <|> string "WH" <|>
-                           string "B" <|> string "H" <|> string "T")
+                           string "B" <|> string "B*" <|> string "H" <|>
+                           string "T" <|> string "MS" <|> string "MC")
 
 parseName :: Parser ConstructorName
 parseName = (\n e -> concat $ [n]++(if null e then e else ["_"]++e)) <$> many (letter_ascii <|> digit) <*> many parseExt

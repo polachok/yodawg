@@ -1,0 +1,49 @@
+Version     Field   DXF      Description
+            type    grou
+                    p
+            MS               Size in bytes of object, not including the CRC
+R2010+
+            MC               Size in bits of the handle stream (unsigned, 0x40 is not interpreted as
+                             sign). This includes the padding bits at the end of the handle stream (the
+                             padding bits make sure the object stream ends on a byte boundary).
+Commmon
+            OT               Object type
+R2000-R2007
+            RL               Size of object data in bits (number of bits before the handles), or the
+                             “endbit” of the pre-handles section.
+Common:
+            H       5        Object’s handle
+            BS               Size of extended object data, if any
+            X                Extended object data, if any. See EED section, chapter 25.
+R13-R14
+            RL               Size of object data in bits
+            BL               Number of persistent reactors attached to this object
+R2004+
+            B                If 1, no XDictionary handle is stored for this object, otherwise
+                             XDictionary handle is stored as in R2000 and earlier.
+Common
+            X                Object data (varies by type of object)
+R2007+
+            X                String data (optional)
+            B                String stream present bit (last bit in pre-handles section). If 1, then the
+                             “endbit” location should be decremented by 16 bytes, and a short should
+                             be read at location endbit – 128 (bits), call this short strDataSize. If this
+                             short has the 0x8000 bit set, then decrement endbit by an additional 16
+                             bytes, strip the 0x8000 bit off of strDataSize, and read the short at this new
+                             location, calling it hiSize. Then set strDataSize to (strDataSize | (hiSize
+                             << 15)). “endbit” should then be decremented by this final strDataSize
+                             value, and this bit location marks the start of the
+                             “string stream” within this object. All unicode strings in this object are
+                             located in the “string stream”, and should be read from this stream, even
+                             though the location of the TV type fields in the object descriptions list
+                             these fields in among the normal object data.
+Common
+                             Below begins the handles stream, this begins at offset specified by number
+                             of bits before handles above
+            H                Parent handle (soft pointer)
+            H                [Reactors (soft pointer)], repeated as many times as specified by the
+                             number of persistent reactors
+            H                xdictionary (hard owner), present if the has xdictionary flag is true
+            X                Object specific handles
+            B*               Padding bits are added until the next byte boundary is reached.
+            RS               CRC

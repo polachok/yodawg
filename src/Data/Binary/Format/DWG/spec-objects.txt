@@ -4,7 +4,7 @@ R2010+:
             MC :             Size in bits of the handle stream (unsigned, 0x40 is not interpreted as
                              sign). This includes the padding bits at the end of the handle stream (the
                              padding bits make sure the object stream ends on a byte boundary).
-Commmon:
+Common:
             OT :             Object type
 R2000-R2007:
             RL :             Size of object data in bits (number of bits before the handles), or the

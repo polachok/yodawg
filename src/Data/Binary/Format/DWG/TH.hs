@@ -26,9 +26,11 @@ specPath = "/src/Data/Binary/Format/DWG/spec.txt"
 parseHeader :: Parser [Version]
 parseHeader = ((string "R2007 Only" *> return [R21]) <|>
                (string "Common" *> return [Common]) <|>
+               (string "R13-R14" *> return [R13 .. R14]) <|>
                (string "R13-R14 Only" *> return [R13 .. R14]) <|>
                (string "R13-R15 Only" *> return [R13 .. R15]) <|>
                (string "Pre-2004 Only" *> return [R13 .. R15]) <|>
+               (string "R2000-R2007" *> return [R15 .. R21]) <|>
                (string "R2004+" *> return [R18 .. ]) <|>
                (string "R2007+ Only" *> return [R21 ..]) <|>
                (string "R2007+" *> return [R21 ..]) <|>

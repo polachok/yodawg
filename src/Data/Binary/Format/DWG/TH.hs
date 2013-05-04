@@ -11,6 +11,7 @@ import Control.Applicative
 import Control.Monad.Trans.State (evalState, get, put)
 import Data.List (groupBy, intercalate, intersperse, find, sort)
 import Data.Char (toUpper,toLower)
+import Data.Maybe (catMaybes)
 import Data.Attoparsec.ByteString.Char8
 import Data.ByteString.Char8 (ByteString)
 import qualified Data.ByteString.Char8 as BS
@@ -55,29 +56,31 @@ parseName = (\n e -> concat $ [n]++(if null e then e else ["_"]++e)) <$> many (l
                   parseCaps = intercalate "_" <$> some (skipWhile (== ' ') *> some (satisfy (inClass "A-Z")))
                   parseExt = parsePar <|> parseCaps
 
-parseLine :: Parser (ConstructorName, Field)
-parseLine = (\t n -> (map toUpper n, t)) <$>
-            (some space *> parseType <* parseSep) <*> (parseName <* many (notChar '\n') <* endOfLine)
+parseLine :: Parser (Maybe (ConstructorName, Field))
+parseLine = (((\t n -> Just $ (map toUpper n, t)) <$>
+            (some space *> parseType <* parseSep) <*> (parseName <* many (notChar '\n') <* endOfLine))) <|>
+            -- comment line
+            ((some space *> many (notChar '\n') <* endOfLine) *> pure Nothing)
             where parseSep = skipSpace *> char ':' <* skipSpace
 
-parseFlags :: Parser (ConstructorName, Field)
-parseFlags = do 
-             (name, typ) <- parseLine
-             case typ of
-                -- basically just skip over flags
-                "BL" -> some (do some space
-                                 parseName
-                                 skipSpace
-                                 notChar ':'
-                                 many (notChar '\n')
-                                 endOfLine) *> return (name, typ)
-                _ -> fail "cant parse flags"
+parseFlags :: Parser (Maybe (ConstructorName, Field))
+parseFlags = parseLine >>= \l -> case l of
+                Nothing -> return Nothing
+                Just (name, typ) -> case typ of
+                    -- basically just skip over flags
+                    "BL" -> some (do some space
+                                     parseName
+                                     skipSpace
+                                     notChar ':'
+                                     many (notChar '\n')
+                                     endOfLine) *> (return $ Just (name, typ))
+                    _ -> fail "cant parse flags"
 
 parseSection :: Parser ([Version], [Constructor])
 parseSection = do 
                let parseRecord = parseFlags <|> parseLine
                    foldMultilines = map (foldr (\(n, xs1) (_, xs2) -> (n, xs1:xs2)) ("",[]))
-                   groupMultilines = groupBy (\(n, _) (n2, _) -> n2 == n)
+                   groupMultilines = groupBy (\(n, _) (n2, _) -> n2 == n) . catMaybes
                vs <- parseHeader 
                xs <- some parseRecord
                return (vs, foldMultilines $ groupMultilines xs)

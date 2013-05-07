@@ -46,7 +46,7 @@ parseType :: Parser Field
 parseType = let types = map string $ reverse.sort $
                          [ "BSH", "BS", "BD", "BLF", "BL", "TV", "CMC", "3BD",
                            "2RD", "RL", "RC", "WH", "B*", "B", "H",
-                           "T", "MS", "MC", "OT", "X" ]
+                           "T", "MS", "MC", "OT", "X", "RS" ]
             in
                 BS.unpack <$> foldl1 (<|>) types
 

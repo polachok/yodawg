@@ -22,7 +22,7 @@ type ConstructorName = String
 type Field = String
 type Constructor = (ConstructorName, [Field])
 
-specPath = "/src/Data/Binary/Format/DWG/spec.txt"
+specPath = "/src/Data/Binary/Format/DWG/Spec/"
 
 parseHeader :: Parser [Version]
 parseHeader = ((string "R2007 Only" *> return [R21]) <|>
@@ -100,8 +100,8 @@ parseSpec bs = case parseOnly (some parseSection) bs of
 readSpec :: String -> Version -> Q [Constructor]
 readSpec path version = do
     curdir <- runIO $ getCurrentDirectory
-    addDependentFile $ curdir ++ specPath
-    bs <- runIO $ BS.readFile (curdir ++ specPath)
+    addDependentFile $ curdir ++ path
+    bs <- runIO $ BS.readFile (curdir ++ path)
     return $ concat <$> map snd <$> filter (\(v, _) ->
                elem version v || elem Common v) $ parseSpec bs
 
@@ -114,7 +114,7 @@ mkVariableAdt name version = do
                              _   -> [|$(b) $(varE $ mkName "get")|]) [|fmap $(conE $ mkName name)|] $ intersperse "*" fields
         parserName = mkName $ "parse" ++ name ++ "s" ++ (show version)
 
-    spec <- readSpec specPath version
+    spec <- readSpec (specPath ++ "variables.txt") version
     [ValD _ body dec] <- [d|parse = $(listE $ map mkParser spec)|]
     let parser = ValD (VarP parserName) body dec
     decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
@@ -124,6 +124,6 @@ mkNonEntityObjectRecord :: String -> Version -> Q [Dec]
 mkNonEntityObjectRecord name version = do
     let mkCtor (name, fields) =
             recC (mkName name) (map (\x -> varStrictType (mkName x) $ strictType isStrict (conT (mkName ("DWG_"++x)))) fields)
-    spec <- readSpec specPath version
+    spec <- readSpec (specPath ++ "non-entity-objects.txt") version
     decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
     return [decl]

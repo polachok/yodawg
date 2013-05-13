@@ -97,6 +97,14 @@ parseSpec bs = case parseOnly (some parseSection) bs of
                                                        return $ (name ++ show n, xs)
                                        _ -> return (name, xs)) xs) ss
 
+readSpec :: String -> Version -> Q [Constructor]
+readSpec path version = do
+    curdir <- runIO $ getCurrentDirectory
+    addDependentFile $ curdir ++ specPath
+    bs <- runIO $ BS.readFile (curdir ++ specPath)
+    return $ concat <$> map snd <$> filter (\(v, _) ->
+               elem version v || elem Common v) $ parseSpec bs
+
 mkVariableAdt :: String -> Version -> Q [Dec]
 mkVariableAdt name version = do
     let mkCtor (name, fields) =
@@ -106,11 +114,7 @@ mkVariableAdt name version = do
                              _   -> [|$(b) $(varE $ mkName "get")|]) [|fmap $(conE $ mkName name)|] $ intersperse "*" fields
         parserName = mkName $ "parse" ++ name ++ "s" ++ (show version)
 
-    curdir <- runIO $ getCurrentDirectory
-    addDependentFile $ curdir ++ specPath
-    bs <- runIO $ BS.readFile (curdir ++ specPath)
-    let spec = concat <$> map snd <$> filter (\(v, _) ->
-               elem version v || elem Common v) $ parseSpec bs
+    spec <- readSpec specPath version
     [ValD _ body dec] <- [d|parse = $(listE $ map mkParser spec)|]
     let parser = ValD (VarP parserName) body dec
     decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]

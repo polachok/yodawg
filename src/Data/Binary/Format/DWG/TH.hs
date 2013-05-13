@@ -53,8 +53,8 @@ parseType = let types = map string $ reverse.sort $
 parseName :: Parser ConstructorName
 parseName = (\n e -> concat $ [n]++(if null e then e else ["_"]++e)) <$> many (letter_ascii <|> digit) <*> many parseExt
             where parsePar = skipSpace *> char '(' *> some (satisfy (inClass "A-Z")) <* char ')'
-                  parseCaps = intercalate "_" <$> some (skipWhile (== ' ') *> some (satisfy (inClass "A-Z")))
-                  parseExt = parsePar <|> parseCaps
+                  parseMore = intercalate "_" <$> some (skipWhile (== ' ') *> some letter_ascii)
+                  parseExt = parsePar <|> parseMore
 
 parseLine :: Parser (Maybe (ConstructorName, Field))
 parseLine = (((\t n -> Just $ (map toUpper n, t)) <$>

@@ -16,7 +16,7 @@ import Data.Binary.Format.DWG.Bitcoded as Bits
 
 import Debug.Trace
 
-mkVariableAdt "Variable" "R15"
+mkVariableAdt "Variable" R15
 
 data Variables = Variables {
                   v_size :: !DWG_RL

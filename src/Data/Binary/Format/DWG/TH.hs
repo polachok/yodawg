@@ -119,3 +119,11 @@ mkVariableAdt name version = do
     let parser = ValD (VarP parserName) body dec
     decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
     return [decl, parser]
+
+mkNonEntityObjectRecord :: String -> Version -> Q [Dec]
+mkNonEntityObjectRecord name version = do
+    let mkCtor (name, fields) =
+            recC (mkName name) (map (\x -> varStrictType (mkName x) $ strictType isStrict (conT (mkName ("DWG_"++x)))) fields)
+    spec <- readSpec specPath version
+    decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
+    return [decl]

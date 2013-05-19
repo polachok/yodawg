@@ -1,0 +1,61 @@
+            MS : Size of object, not including the CRC
+R2010+:
+            MC : Size in bits of the handle stream (unsigned, 0x40 is not interpreted as sign).
+Commmon:
+            OT : Object type
+R2000+ Only:
+            RL : Size of object data in bits
+Common:
+            H : Object’s handle
+            BS : Size of extended object data, if any
+            X : Extended object data, if any
+            B : Flag indicating presence of graphic image.
+                if (graphicimageflag is 1) {
+R13-R007:
+            RL: Size of graphic image in bytes
+R2010+:
+            BLL: Size of graphic image in bytes
+Common:
+            X: The graphic image
+            }
+R13-R14 Only:
+            RL : Size of object data in bits
+            6B : Flags
+            6B : Common parameters
+R2000+ Only:
+            B : 0 if the previous and next linkers are present; 1 if they are BOTH defaults (1
+                back and 1 forward).
+            ENC : Entity color
+            BD : Linetype Scale
+            BB : Line type flags
+                        00 – BYLAYER linetype
+                        01 – BYBLOCK linetype
+                        10 – CONTINUOUS linetype
+                        11 – Indicates that a linetype handle will be stored in the handles section of the
+                             entity.
+            BB : Plotstyle flags:
+                        00 – BYLAYER plotstyle
+                        01 – BYBLOCK plotstyle
+                        10 – CONTINUOUS plotstyle
+                        11 – Indicates that a plotstyle handle will be stored in the handles section of
+R2007+:
+            BB : Material flags:
+                        00 – BYLAYER material
+                        01 – BYBLOCK material
+                        10 – global material?
+                        11 – Indicates that a material handle will be stored in the handles section of the
+                        entity.
+            RC : Shadow flags
+R2010+:
+            B : Has full visual style
+            B : Has face visual style
+            B : Has edge visual style
+Common:
+            BS : Invisible flag (bit 0: 0 = visible, 1 = invisible)
+R2000+:
+            RC : Entity lineweight flag
+Common:
+            X : Object data (varies by type of object)
+            X : Handles associated with this object
+            B* : Padding bits are added until the next byte boundary is reached.
+            RS : CRC

@@ -1,5 +1,7 @@
 {-# LANGUAGE TemplateHaskell, OverloadedStrings #-}
-module Data.Binary.Format.DWG.TH (mkVariableAdt,Version(..)) where
+module Data.Binary.Format.DWG.TH (mkVariableAdt,
+                                  mkNonEntityObjectRecord,
+                                  Version(..)) where
 
 import Language.Haskell.TH
 import Language.Haskell.TH.Quote
@@ -122,8 +124,13 @@ mkVariableAdt name version = do
 
 mkNonEntityObjectRecord :: String -> Version -> Q [Dec]
 mkNonEntityObjectRecord name version = do
-    let mkCtor (name, fields) =
-            recC (mkName name) (map (\x -> varStrictType (mkName x) $ strictType isStrict (conT (mkName ("DWG_"++x)))) fields)
+    let mkField (name, field:[]) = varStrictType (mkName $ map toLower name) $ strictType isStrict $ mkCtor field
+        mkRecord spec = recC (mkName name) (map mkField spec)
+        mkCtor f = case span (/= '*') f of
+            -- '*' means `some bits` aka list
+            (typ, "*") -> appT listT (conT $ mkName ("DWG_" ++ typ))
+            _ -> conT $ mkName ("DWG_" ++ f)
+
     spec <- readSpec (specPath ++ "non-entity-objects.txt") version
-    decl <- dataD (cxt []) (mkName name) [] (map mkCtor spec) [''Show]
+    decl <- dataD (cxt []) (mkName name) [] [mkRecord spec] [''Show]
     return [decl]

@@ -41,7 +41,7 @@ newtype DWG_T  = DWG_T ByteString deriving (Show) -- bitshort length, followed b
 type DWG_TU  = ByteString -- bitshort character length, followed
                     -- by Unicode string, 2 bytes per character
 type DWG_TV = DWG_T -- for 2004 and earlier else TU
---newtype DWG_X   = -- special form
+data DWG_X  = DWG_X deriving (Show) -- special form
 --newtype DWG_U   = -- unknown
 type DWG_SN  = [Word8] -- 16 byte sentinel
 --newtype DWG_BE  = -- bit extrusion

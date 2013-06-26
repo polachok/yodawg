@@ -17,7 +17,15 @@ cabal-version:       >=1.8
 extra-source-files:  src/Data/Binary/Format/DWG/spec.txt
 
 library
-  exposed-modules:     Data.Binary.Format.DWG.FileHeader, Data.Binary.Format.DWG.Types, Data.Binary.Format.DWG.HeaderVariables, Data.Binary.Format.DWG.File, Data.Binary.Format.DWG.TH, Data.Binary.Format.DWG.Bitcoded, Data.Binary.Format.DWG.Classes
-  -- other-modules:       
+  exposed-modules:     Data.Binary.Format.DWG.File, Data.Binary.Format.DWG.FFI
+  c-sources: src/Data/Binary/Format/DWG/call.c
+  ghc-options: -fPIC -optl-static
+  cc-options: -fPIC
+  other-modules:  Data.Binary.Format.DWG.Util, Data.Binary.Format.DWG.ObjectMap,
+                  Data.Binary.Format.DWG.FileHeader, Data.Binary.Format.DWG.Types,
+                  Data.Binary.Format.DWG.HeaderVariables, 
+                  Data.Binary.Format.DWG.TH, Data.Binary.Format.DWG.Bitcoded, 
+                  Data.Binary.Format.DWG.Classes
+  				       
   build-depends:       base ==4.5.*, template-haskell ==2.7.*, attoparsec ==0.10.*, bytestring ==0.9.*, binary ==0.7.*, data-binary-ieee754 ==0.4.*, binary-bits ==0.3.*, containers ==0.4.*, mtl ==2.1.*, transformers ==0.3.*, directory ==1.1.*
   hs-source-dirs:      src
